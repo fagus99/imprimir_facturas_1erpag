@@ -1,9 +1,14 @@
 import streamlit as st
 import fitz  # PyMuPDF
+import zipfile
+from io import BytesIO
 
 st.title("Visualizador de la Primera Página de PDFs")
 
 uploaded_files = st.file_uploader("Sube uno o varios archivos PDF", type="pdf", accept_multiple_files=True)
+
+# Lista para almacenar las imágenes
+images_to_download = []
 
 if uploaded_files:
     for file in uploaded_files:
@@ -13,15 +18,6 @@ if uploaded_files:
                 first_page = doc.load_page(0)  # Carga la primera página
                 pix = first_page.get_pixmap()  # Renderiza la página a imagen
                 img_bytes = pix.tobytes("png")  # Convierte a PNG
-                st.image(img_bytes, caption=f"Primera página de {file.name}", use_container_width=True)
+                image_name = f"first_page_{file.name}.png"
                 
-                # Botón para descargar la imagen
-                st.download_button(
-                    label="Descargar imagen de la primera página",
-                    data=img_bytes,
-                    file_name=f"first_page_{file.name}.png",
-                    mime="image/png"
-                )
-                
-        except Exception as e:
-            st.error(f"No se pudo procesar el archivo {file.name}: {e}")
+                # Añadir la imagen a la lista de imágenes para descargar
