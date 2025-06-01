@@ -21,3 +21,26 @@ if uploaded_files:
                 image_name = f"first_page_{file.name}.png"
                 
                 # Añadir la imagen a la lista de imágenes para descargar
+                images_to_download.append((image_name, img_bytes))
+                
+                # Mostrar la imagen en la app
+                st.image(img_bytes, caption=f"Primera página de {file.name}", use_container_width=True)
+        
+        except Exception as e:
+            st.error(f"No se pudo procesar el archivo {file.name}: {e}")
+
+    # Si hay imágenes para descargar, crear el botón de descarga
+    if images_to_download:
+        with BytesIO() as zip_buffer:
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                for image_name, img_bytes in images_to_download:
+                    zip_file.writestr(image_name, img_bytes)  # Añadir la imagen al ZIP
+            zip_buffer.seek(0)  # Reiniciar el puntero del buffer para la descarga
+
+            # Botón de descarga para el archivo ZIP
+            st.download_button(
+                label="Descargar todas las imágenes (ZIP)",
+                data=zip_buffer,
+                file_name="imagenes_primeras_paginas.zip",
+                mime="application/zip"
+            )
